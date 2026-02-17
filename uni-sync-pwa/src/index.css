@@ -1,0 +1,114 @@
+/* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* --- THE 3-COLOR THEME --- */
+  --primary: #2563EB;       /* Royal Blue */
+  --primary-dark: #1e40af;  /* Darker Blue for hover */
+  --bg-app: #F3F4F6;        /* Soft Blue-Grey Background */
+  --surface: #FFFFFF;       /* Pure White Cards */
+  
+  /* --- Functional Colors --- */
+  --text-main: #1F2937;     /* Dark Grey for readability */
+  --text-muted: #6B7280;    /* Light Grey for subtitles */
+  --border: #E5E7EB;        /* Subtle borders */
+  --success: #10B981;       /* Green */
+  --danger: #EF4444;        /* Red */
+
+  /* --- UI Tokens --- */
+  --radius: 16px;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+  padding-bottom: 90px; /* Space for bottom nav */
+}
+
+/* --- Global Components --- */
+
+.app-header {
+  background: var(--surface);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: var(--shadow-sm);
+}
+
+.page-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+/* Modern Card */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 16px;
+}
+
+/* Interactive Card Hover */
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Modern Inputs */
+.input-field {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg-app);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-size: 15px;
+  color: var(--text-main);
+  transition: all 0.2s;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+}
+
+.input-field:focus {
+  background: var(--surface);
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Primary Button */
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+}
+
+.btn-primary:disabled {
+  background: var(--text-muted);
+  cursor: not-allowed;
+}
