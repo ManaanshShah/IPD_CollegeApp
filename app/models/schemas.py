@@ -111,3 +111,17 @@ class ClassOut(BaseModel):
     name: str
     class Config:
         orm_mode = True
+
+class CourseOut(BaseModel):
+    id: int
+    name: str
+    course_code: str
+    class Config:
+        orm_mode = True
+
+# --- NEW: ATTENDANCE SUBMISSION ---
+class AttendanceSubmit(BaseModel):
+    class_id: int
+    course_id: int
+    # Dictionary mapping Student ID (int) -> Present/Absent (bool)
+    attendance_data: Dict[int, bool]

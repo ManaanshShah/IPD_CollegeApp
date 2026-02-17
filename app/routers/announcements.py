@@ -37,7 +37,7 @@ async def get_all_announcements(current_user: CurrentUserDep):
 @router.post("/", response_model=AnnouncementOut, status_code=status.HTTP_201_CREATED)
 async def create_announcement(
     announcement: AnnouncementCreate, 
-    current_user: Annotated[UserInDB, Depends(check_role("teacher"))]
+    current_user: Annotated[UserInDB, Depends(check_role("faculty"))]
 ):
     """
     Allows Teachers and Admins to post new announcements, hackathons, or internships.

@@ -34,41 +34,28 @@ def get_student_grades(db: Session, student_id: int):
     return db.query(models.DBGrade).filter(models.DBGrade.student_id == student_id).first()
 
 def update_student_grade(db: Session, student_id: int, course_name: str, marks: int):
-    """
-    Updates a grade ONLY if the course exists in the database.
-    Returns None if course is invalid.
-    """
+    # 1. Find existing grade record
+    db_grade = db.query(models.DBGrade).filter(models.DBGrade.student_id == student_id).first()
     
-    # 1. VALIDATION: Check if the course exists (Case-Insensitive)
-    official_course = db.query(models.Course).filter(func.lower(models.Course.name) == course_name.lower()).first()
+    # 2. If no record exists, create one
+    if not db_grade:
+        db_grade = models.DBGrade(student_id=student_id, courses={})
+        db.add(db_grade)
     
-    if not official_course:
-        return None # RETURN FAILURE if course doesn't exist
+    # 3. CRITICAL: Create a NEW dictionary to trigger SQLAlchemy's change detection
+    # If you just do db_grade.courses[course_name] = marks, SQLAlchemy might ignore it!
+    new_courses = dict(db_grade.courses) if db_grade.courses else {}
+    new_courses[course_name] = marks
     
-    # Use the official name from the DB to keep consistency
-    actual_key = official_course.name 
+    # 4. Assign the new dictionary back
+    db_grade.courses = new_courses
     
-    # 2. Update or Create the Grade Record
-    db_record = get_student_grades(db, student_id)
-    
-    if db_record:
-        # Update existing
-        current_grades = dict(db_record.courses) 
-        current_grades[actual_key] = marks
-        db_record.courses = current_grades
-        from sqlalchemy.orm.attributes import flag_modified
-        flag_modified(db_record, "courses")
-    else:
-        # Create new
-        db_record = models.DBGrade(
-            student_id=student_id, 
-            courses={actual_key: marks}
-        )
-        db.add(db_record)
-        
+    # 5. Commit
+    db.add(db_grade) # Mark as modified
     db.commit()
-    db.refresh(db_record)
-    return db_record
+    db.refresh(db_grade)
+    
+    return db_grade
 
 def get_timetable_by_class(db: Session, class_id: int):
     """Fetch timetable only for a specific class."""
@@ -83,6 +70,16 @@ def get_all_timetable_entries(db: Session):
     # <--- FIXED: uses joinedload directly
     return db.query(models.TimetableEntry).join(models.Course).options(joinedload(models.TimetableEntry.course)).all()
 
+# app/db/crud.py
+
+def get_timetable_by_teacher(db: Session, teacher_id: int):
+    """Fetch timetable entries only for courses taught by this specific teacher."""
+    return (db.query(models.TimetableEntry)
+            .join(models.Course)
+            .options(joinedload(models.TimetableEntry.course))
+            .filter(models.Course.teacher_id == teacher_id)  # <--- The Magic Filter
+            .order_by(models.TimetableEntry.day_of_week, models.TimetableEntry.start_time)
+            .all())
 # --- ATTENDANCE ---
 def mark_attendance(db: Session, course_id: int, present_student_ids: List[int]):
     """
