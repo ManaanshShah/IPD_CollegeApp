@@ -16,7 +16,8 @@ app.add_middleware(
         "http://127.0.0.1:5173",
         "http://localhost:6173",
         "http://127.0.0.1:6173",
-        "https://ipd-college-app.vercel.app"  # <--- EXACTLY LIKE THIS
+        "https://ipd-college-app.vercel.app", 
+        "https://ipd-college-c0yf9101i-manaansh-shahs-projects.vercel.app" # <--- ADDED THE NEW ONE!
     ], 
     allow_credentials=True,
     allow_methods=["*"],  
