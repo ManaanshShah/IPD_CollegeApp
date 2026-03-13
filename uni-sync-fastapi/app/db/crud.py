@@ -35,23 +35,24 @@ def get_student_grades(db: Session, student_id: int):
     return db.query(models.Grade).filter(models.Grade.student_id == student_id).first()
 
 def update_student_grade(db: Session, student_id: int, course_name: str, marks: int):
-    # Change models.DBGrade -> models.Grade
-    db_grade = db.query(models.Grade).filter(models.Grade.student_id == student_id).first()
+    # 1. Find the course ID based on the course name
+    course = db.query(models.Course).filter(models.Course.name == course_name).first()
+    if not course: 
+        return None
     
-    if not db_grade:
-        # Change models.DBGrade -> models.Grade
-        db_grade = models.Grade(student_id=student_id, courses={})
-        db.add(db_grade)
-    
-    new_courses = dict(db_grade.courses) if db_grade.courses else {}
-    new_courses[course_name] = marks
-    db_grade.courses = new_courses
-    
-    db.add(db_grade) 
+    # 2. Create the grade properly
+    new_grade = models.Grade(
+        student_id=student_id,
+        course_id=course.id,
+        exam_type=models.ExamType.MIDTERM_1, 
+        marks_obtained=marks,
+        max_marks=15
+    )
+    db.add(new_grade)
     db.commit()
-    db.refresh(db_grade)
-    
-    return db_grade
+    db.refresh(new_grade)
+    return new_grade
+
 
 def get_timetable_by_class(db: Session, class_id: int):
     """Fetch timetable only for a specific class."""

@@ -84,13 +84,13 @@ class Grade(Base):
     __tablename__ = "grades"
     id = Column(Integer, primary_key=True, index=True)
     student_id = Column(Integer, ForeignKey("users.id"))
-    courses = Column(JSON, nullable=True) 
+    course_id = Column(Integer, ForeignKey("courses.id")) # <--- Bringing this back!
+    exam_type = Column(Enum(ExamType))                    # <--- Bringing this back!
+    marks_obtained = Column(Integer)                      # <--- Bringing this back!
+    max_marks = Column(Integer, default=100)
     student = relationship("User")
+    course = relationship("Course")                       # <--- Bringing this back!
     
-    # Make sure you DELETE any lines below this that say:
-    # course_id = Column(...)
-    # course = relationship("Course")
-
 class Event(Base):
     __tablename__ = "events"
     id = Column(Integer, primary_key=True, index=True)
