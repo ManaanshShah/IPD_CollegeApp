@@ -19,6 +19,7 @@ app.add_middleware(
         "https://ipd-college-app.vercel.app", 
         "https://ipd-college-c0yf9101i-manaansh-shahs-projects.vercel.app" # <--- ADDED THE NEW ONE!
     ], 
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],  
     allow_headers=["*"],  
