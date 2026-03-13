@@ -5,7 +5,8 @@ import api from './api';
 
 function StudentMarks() {
   const navigate = useNavigate();
-  const [marksData, setMarksData] = useState(null);
+  // Initialize with empty arrays to prevent crashes
+  const [marksData, setMarksData] = useState({ midterm_1: [], midterm_2: [], end_sem: [] });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,7 +15,10 @@ function StudentMarks() {
     const user = JSON.parse(userStr);
 
     api.get(`/academic/marks/${user.id}`)
-      .then(res => { setMarksData(res.data); setLoading(false); })
+      .then(res => { 
+        setMarksData(res.data); 
+        setLoading(false); 
+      })
       .catch(() => { setLoading(false); });
   }, [navigate]);
 
@@ -27,39 +31,17 @@ function StudentMarks() {
         <div style={{ width: '32px' }}></div>
       </div>
 
-      <div style={{ padding: '20px', marginTop: '-40px' }}>
+      <div style={{ padding: '20px', marginTop: '-30px' }}>
         
         {/* Main Report Card */}
         <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
-           <div style={{ padding: '20px', background: '#F9FAFB', borderBottom: '1px solid #E5E7EB', textAlign: 'center' }}>
-              <div style={{ fontSize: '12px', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '1px' }}>Semester V Results</div>
-              <div style={{ fontSize: '24px', fontWeight: '700', color: '#1F2937', marginTop: '5px' }}>
-                {loading ? '...' : calculatePercentage(marksData)}%
-              </div>
-              <div style={{ fontSize: '13px', color: '#2563EB', fontWeight: '500' }}>Overall Aggregate</div>
-           </div>
-
            {loading ? (
-             <p style={{ padding: '20px', textAlign: 'center', color: '#6B7280' }}>Fetching records...</p>
-           ) : !marksData ? (
-             <div style={{ padding: '40px 20px', textAlign: 'center' }}>
-                <div style={{ fontSize: '30px', marginBottom: '10px' }}>📄</div>
-                <p style={{ color: '#6B7280' }}>No marks uploaded yet.</p>
-             </div>
+             <p style={{ padding: '30px', textAlign: 'center', color: '#6B7280' }}>Fetching your academic records...</p>
            ) : (
-             <div>
-                {Object.entries(marksData.grades).map(([subject, score], index) => (
-                  <div key={index} style={styles.row}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                       <div style={styles.subjectIcon}>{subject[0]}</div>
-                       <span style={{ fontWeight: '500', color: '#374151' }}>{subject}</span>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                       <span style={{ fontWeight: '700', color: score >= 40 ? '#059669' : '#DC2626' }}>{score}</span>
-                       <span style={{ fontSize: '12px', color: '#9CA3AF' }}>/100</span>
-                    </div>
-                  </div>
-                ))}
+             <div style={{ padding: '20px' }}>
+                {renderExamSection("Midsemester Exam 1", marksData.midterm_1)}
+                {renderExamSection("Midsemester Exam 2", marksData.midterm_2)}
+                {renderExamSection("End Semester Exam", marksData.end_sem)}
              </div>
            )}
         </div>
@@ -68,19 +50,50 @@ function StudentMarks() {
   );
 }
 
-// Helper to calculate %
-const calculatePercentage = (data) => {
-  if (!data || !data.grades) return 0;
-  const scores = Object.values(data.grades);
-  if (scores.length === 0) return 0;
-  const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
-  return avg.toFixed(1);
+// Helper to render sections - Now always shows the section!
+const renderExamSection = (title, gradesArray) => {
+    return (
+        <div style={{ marginBottom: '25px' }}>
+            <h3 style={{ fontSize: '15px', color: '#4B5563', margin: '0 0 10px 5px', borderBottom: '2px solid #E5E7EB', paddingBottom: '5px' }}>
+                {title}
+            </h3>
+            
+            {(!gradesArray || gradesArray.length === 0) ? (
+                /* Empty State Box */
+                <div style={{ padding: '15px', textAlign: 'center', color: '#9CA3AF', fontSize: '13px', background: '#F9FAFB', borderRadius: '12px', border: '1px dashed #E5E7EB' }}>
+                    Marks not yet uploaded
+                </div>
+            ) : (
+                /* Filled Grades Box */
+                <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #F3F4F6', overflow: 'hidden' }}>
+                    {gradesArray.map((grade, index) => (
+                        <div key={index} style={styles.row}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <div style={styles.subjectIcon}>{grade.course_name.charAt(0)}</div>
+                                <div>
+                                    <div style={{ fontWeight: '500', color: '#374151', fontSize: '14px' }}>{grade.course_name}</div>
+                                    <div style={{ fontSize: '12px', color: '#9CA3AF' }}>{grade.course_code}</div>
+                                </div>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                                <span style={{ fontWeight: '700', fontSize: '16px', color: (grade.marks_obtained / grade.max_marks >= 0.4) ? '#059669' : '#DC2626' }}>
+                                    {grade.marks_obtained}
+                                </span>
+                                <span style={{ fontSize: '12px', color: '#9CA3AF' }}> /{grade.max_marks}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
 };
 
 const styles = {
   header: {
-    background: 'var(--primary)', padding: '20px 20px 60px 20px', 
-    display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+    background: 'var(--primary)', padding: '20px 20px 50px 20px', 
+    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+    borderBottomLeftRadius: '24px', borderBottomRightRadius: '24px'
   },
   backBtn: {
     background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white',

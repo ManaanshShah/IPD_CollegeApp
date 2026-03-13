@@ -6,21 +6,21 @@ import api from './api';
 function UpdateMarks() {
   const navigate = useNavigate();
   
-  // Selection State
   const [branches, setBranches] = useState([]);
   const [classes, setClasses] = useState([]);
+  const [courses, setCourses] = useState([]); 
   const [selectedBranch, setSelectedBranch] = useState('');
   const [selectedClass, setSelectedClass] = useState('');
-  const [subjectName, setSubjectName] = useState(''); // e.g., "IoT"
-  
-  // Student Data
+  const [selectedCourseId, setSelectedCourseId] = useState(''); 
+  const [examType, setExamType] = useState('');
+
   const [students, setStudents] = useState([]);
-  const [marksInput, setMarksInput] = useState({}); // Stores marks: { studentId: 85 }
+  const [marksInput, setMarksInput] = useState({}); 
   const [loading, setLoading] = useState(false);
 
-  // Initial Fetches
   useEffect(() => {
     api.get('/academic/branches').then(res => setBranches(res.data));
+    api.get('/academic/courses').then(res => setCourses(res.data));
   }, []);
 
   useEffect(() => {
@@ -28,12 +28,10 @@ function UpdateMarks() {
     api.get(`/academic/classes/${selectedBranch}`).then(res => setClasses(res.data));
   }, [selectedBranch]);
 
-  // Load Students
   const handleFetchStudents = async () => {
     if (!selectedBranch || !selectedClass) return;
     setLoading(true);
     try {
-      // Use the correct new endpoint
       const res = await api.get(`/academic/students/class/${selectedClass}`);
       setStudents(res.data);
     } catch (err) {
@@ -43,15 +41,17 @@ function UpdateMarks() {
     }
   };
 
-  // Save Mark
   const handleUpdate = async (studentId) => {
-    if (!subjectName) { alert("Please enter a Subject Name first (e.g., IoT)"); return; }
+    if (!examType) { alert("Please select an Exam Type (e.g., Midterm 1)."); return; }
+    if (!selectedCourseId) { alert("Please select a Subject."); return; }
+    
     const mark = marksInput[studentId];
     if (!mark) { alert("Please enter marks"); return; }
 
     try {
       await api.put(`/academic/marks/${studentId}`, {
-        course_name: subjectName,
+        course_id: parseInt(selectedCourseId),
+        exam_type: examType,
         marks: parseInt(mark)
       });
       alert("✅ Saved!");
@@ -62,7 +62,6 @@ function UpdateMarks() {
 
   return (
     <div>
-      {/* Header */}
       <div style={styles.header}>
         <button onClick={() => navigate('/faculty')} style={styles.backBtn}>←</button>
         <h2 style={{ margin: 0, fontSize: '18px', color: 'white' }}>Update Results</h2>
@@ -70,8 +69,6 @@ function UpdateMarks() {
       </div>
 
       <div style={{ padding: '20px', marginTop: '-30px' }}>
-        
-        {/* Filter Card */}
         <div className="card">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <div>
@@ -100,23 +97,40 @@ function UpdateMarks() {
           </button>
         </div>
 
-        {/* Student List */}
         {students.length > 0 && (
           <div style={{ marginTop: '20px' }}>
-            
-            {/* Subject Input */}
-            <div style={{ marginBottom: '15px' }}>
-              <label style={styles.label}>Subject Name (e.g. IoT)</label>
-              <input 
-                type="text" 
-                className="input-field"
-                placeholder="Enter Subject Code/Name"
-                value={subjectName} 
-                onChange={(e) => setSubjectName(e.target.value)}
-              />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+                <div>
+                  <label style={styles.label}>Exam Type</label>
+                  <select 
+                    className="input-field"
+                    value={examType} 
+                    onChange={(e) => setExamType(e.target.value)}
+                  >
+                    <option value="">-- Choose Exam --</option>
+                    <option value="midterm_1">Midterm 1</option>
+                    <option value="midterm_2">Midterm 2</option>
+                    <option value="end_sem">End Semester</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={styles.label}>Select Subject</label>
+                  <select 
+                    className="input-field"
+                    value={selectedCourseId} 
+                    onChange={(e) => setSelectedCourseId(e.target.value)}
+                  >
+                    <option value="">-- Choose Subject --</option>
+                    {courses.map(c => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} ({c.course_code})
+                      </option>
+                    ))}
+                  </select>
+                </div>
             </div>
 
-            {/* List */}
             {students.map(student => (
               <div key={student.id} className="card" style={styles.row}>
                 <div style={{ flex: 1 }}>
@@ -162,7 +176,7 @@ const styles = {
   label: { fontSize: '12px', fontWeight: '600', color: '#6B7280', marginBottom: '4px', display: 'block' },
   row: {
     display: 'flex', alignItems: 'center', padding: '15px', marginBottom: '10px',
-    borderLeft: '4px solid var(--primary)' // Nice accent border
+    borderLeft: '4px solid var(--primary)' 
   },
   saveBtn: {
     background: '#10B981', color: 'white', border: 'none', borderRadius: '8px',
