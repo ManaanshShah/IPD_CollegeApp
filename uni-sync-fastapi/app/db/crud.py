@@ -31,27 +31,23 @@ def create_user(db: Session, email: str, password: str, role: UserRole, first_na
 
 # --- ACADEMIC ---
 def get_student_grades(db: Session, student_id: int):
-    return db.query(models.DBGrade).filter(models.DBGrade.student_id == student_id).first()
+    # Change models.DBGrade -> models.Grade
+    return db.query(models.Grade).filter(models.Grade.student_id == student_id).first()
 
 def update_student_grade(db: Session, student_id: int, course_name: str, marks: int):
-    # 1. Find existing grade record
-    db_grade = db.query(models.DBGrade).filter(models.DBGrade.student_id == student_id).first()
+    # Change models.DBGrade -> models.Grade
+    db_grade = db.query(models.Grade).filter(models.Grade.student_id == student_id).first()
     
-    # 2. If no record exists, create one
     if not db_grade:
-        db_grade = models.DBGrade(student_id=student_id, courses={})
+        # Change models.DBGrade -> models.Grade
+        db_grade = models.Grade(student_id=student_id, courses={})
         db.add(db_grade)
     
-    # 3. CRITICAL: Create a NEW dictionary to trigger SQLAlchemy's change detection
-    # If you just do db_grade.courses[course_name] = marks, SQLAlchemy might ignore it!
     new_courses = dict(db_grade.courses) if db_grade.courses else {}
     new_courses[course_name] = marks
-    
-    # 4. Assign the new dictionary back
     db_grade.courses = new_courses
     
-    # 5. Commit
-    db.add(db_grade) # Mark as modified
+    db.add(db_grade) 
     db.commit()
     db.refresh(db_grade)
     

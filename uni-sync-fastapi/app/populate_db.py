@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 from sqlalchemy import text
 from app.db.database import SessionLocal, engine, Base
 from app.db import crud as db_crud, models
+# Ensure models.Grade exists. If you see 'DBGrade' anywhere in your models.py, 
+# you MUST rename that class to 'Grade'.
 from app.db.models import UserRole, AttendanceStatus, EventType
 
 # --- CONFIGURATION DATA ---
