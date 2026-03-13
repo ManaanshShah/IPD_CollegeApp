@@ -11,7 +11,13 @@ app = FastAPI(title="College Portal API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"], 
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:6173",
+        "http://127.0.0.1:6173",
+        "https://ipd-college-app.vercel.app"  # <--- EXACTLY LIKE THIS
+    ], 
     allow_credentials=True,
     allow_methods=["*"],  
     allow_headers=["*"],  
