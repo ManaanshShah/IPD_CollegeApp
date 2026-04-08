@@ -9,6 +9,8 @@ from app.db import models # <--- 1. ADD THIS IMPORT
 
 app = FastAPI(title="College Portal API", version="1.0.0")
 
+# app/main1.py
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -17,12 +19,15 @@ app.add_middleware(
         "http://localhost:6173",
         "http://127.0.0.1:6173",
         "https://ipd-college-app.vercel.app", 
-        "https://ipd-college-c0yf9101i-manaansh-shahs-projects.vercel.app" # <--- ADDED THE NEW ONE!
+        "https://ipd-college-app-manaansh-shahs-projects.vercel.app", # Added a cleaner version
+        "https://ipd-college-c0yf9101i-manaansh-shahs-projects.vercel.app"
     ], 
+    # This regex is your safety net for all Vercel previews
     allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],  
-    allow_headers=["*"],  
+    allow_headers=["*"],
+    expose_headers=["*"], # Added this to help the browser "see" everything
 )
 
 @app.on_event("startup")
