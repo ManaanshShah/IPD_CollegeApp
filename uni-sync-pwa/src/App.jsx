@@ -15,21 +15,15 @@ import MarkAttendance from './MarkAttendance';
 import UpdateMarks from './UpdateMarks';
 import Results from './Results'; 
 import StudentMarks from './StudentMarks';
+import NoticeDetails from './NoticeDetails'; // <-- NEW IMPORT
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* --- FIX START: The Missing Routes --- */}
-        
-        {/* 1. This handles the 'navigate("/login")' from Dashboard */}
         <Route path="/login" element={<Login />} />
-
-        {/* 2. This handles when someone opens the homepage "/" */}
         <Route path="/" element={<Navigate to="/login" replace />} />
         
-        {/* --- FIX END --- */}
-
         <Route element={<Layout />}>
            <Route path="/dashboard" element={<Dashboard />} />
            <Route path="/feed/:category" element={<Feed />} />
@@ -44,6 +38,8 @@ function App() {
         <Route path="/update-marks" element={<UpdateMarks />} />
         <Route path="/results" element={<Results />} />
         <Route path="/student/marks" element={<StudentMarks />} />
+
+        <Route path="/notice/:id" element={<NoticeDetails />} /> 
       </Routes>
     </BrowserRouter>
   );
