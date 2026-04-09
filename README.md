@@ -20,13 +20,6 @@
 
 ---
 
-## 📸 Sneak Peek
-
-*[Pro-Tip: Take a screenshot of your live Vercel dashboard, save it in your project folder as `demo.png`, and it will appear here!]*
-
-![Dashboard Preview](./demo.png)
-
----
 
 ## 🛠️ Tech Stack
 
